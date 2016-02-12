@@ -1,0 +1,6 @@
+<ImageView
+    android:id="@+id/main_ImageView"
+    android:layout_width="200dp"
+    android:layout_height="200dp"
+    android:scaleType="fitXY"
+    xmlns:android="http://schemas.android.com/apk/res/android" />
