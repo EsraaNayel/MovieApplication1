@@ -8,6 +8,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import com.example.nayle.movieapplication.adapter.MainAdapter;
 import com.example.nayle.movieapplication.data.Result;
@@ -51,6 +53,7 @@ public class MainFragment extends Fragment {
     static boolean mTwoPane;
     MainAdapter adapter;
     GridView gridView;
+    int mPosition;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -94,6 +97,9 @@ public class MainFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if( savedInstanceState != null ) {
+            Toast.makeText(getActivity(), savedInstanceState .getString("message"), Toast.LENGTH_LONG).show();
+        }
         setHasOptionsMenu(true);
 
         if (getArguments() != null) {
@@ -103,13 +109,9 @@ public class MainFragment extends Fragment {
     }
 
 
-
-
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             Bundle onSaveInstanceState) {
         // Inflate the layout for this fragment
 
 
@@ -123,11 +125,9 @@ public class MainFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
 
-                Result result = (Result) adapter.list.get(position);
+                Result result =  adapter.list.get(position);
                 Log.i("movie id", String.valueOf(result.getId()));
                 ((Callback) getActivity()).onItemSelected(result);
-
-
 
 
 //                Intent i = new Intent(getActivity(), DetailActivity.class);
@@ -139,9 +139,9 @@ public class MainFragment extends Fragment {
 
 
         if (mTwoPane) {
-            if (savedInstanceState != null && savedInstanceState.containsKey("pos")) {
-                int mPosition = savedInstanceState.getInt("pos");
-                String mID = savedInstanceState.getString("mID");
+            if (onSaveInstanceState != null && onSaveInstanceState.containsKey("pos")) {
+                 mPosition = onSaveInstanceState.getInt("pos");
+                String mID = onSaveInstanceState.getString("mID");
                 if (mID != null) {
                     Bundle bundle = new Bundle();
                     bundle.putString("ID", mID);
@@ -155,16 +155,26 @@ public class MainFragment extends Fragment {
                 }
             }
         } else {
-            if (savedInstanceState != null && savedInstanceState.containsKey("scroll_pos")) {
-                int scroll_pos = savedInstanceState.getInt("scroll_pos");
+            if (onSaveInstanceState != null && onSaveInstanceState.containsKey("scroll_pos")) {
+                int scroll_pos = onSaveInstanceState.getInt("scroll_pos");
             }
+//            else {
+//                 SaveInstanceState.getParcelableArrayList("pos");}
         }
+//         onSaveInstanceState();
+
 
         new JSONTask().execute("http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=c6260798b95be3f1643000b02177cf03");
 
         return view;
 
     }
+
+    public void onSaveInstanceState (Bundle outState){
+        outState.putParcelableArrayList("key", null);
+        super.onSaveInstanceState(outState);
+    }
+
 
     class JSONTask extends AsyncTask<String, String, List<Result>> {
         @Override
@@ -177,6 +187,11 @@ public class MainFragment extends Fragment {
                 connection.connect();
 
                 InputStream stream = connection.getInputStream();
+               // StringBuffer buffer = new StringBuffer();
+                if (stream == null) {
+                    // Nothing to do.
+                    return null;
+                }
                 reader = new BufferedReader(new InputStreamReader(stream));
 
                 StringBuffer buffer = new StringBuffer();
@@ -184,7 +199,15 @@ public class MainFragment extends Fragment {
                 while ((line = reader.readLine()) != null) {
                     buffer.append(line);
                 }
+                if (buffer.length() == 0) {
+                    // Stream was empty.  No point in parsing.
+                    return null;
+                }
+
+
                 String FinalJson = buffer.toString();
+                System.out.println("yaraaaaab" + FinalJson);
+
                 JSONObject jsono = new JSONObject(FinalJson);
                 JSONArray jsona = jsono.getJSONArray("results");
 
@@ -223,8 +246,13 @@ public class MainFragment extends Fragment {
         @Override
         public void onPostExecute(List<Result> result) {
             super.onPostExecute(result);
+            if(result == null) return;
+
             adapter = new MainAdapter(getActivity(), result);
             gridView.setAdapter(adapter);
+
+
+//            isOnline(getContext());
         }
 
         public boolean isOnline(Context context) {

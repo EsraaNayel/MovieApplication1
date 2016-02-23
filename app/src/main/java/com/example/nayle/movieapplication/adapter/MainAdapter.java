@@ -12,6 +12,7 @@ import com.example.nayle.movieapplication.R;
 import com.example.nayle.movieapplication.data.Result;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,6 +21,7 @@ import java.util.List;
 public class MainAdapter extends BaseAdapter {
 
    public List<Result> list;
+
     Context context;
     private LayoutInflater inflater ;
 
@@ -40,7 +42,7 @@ public class MainAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        return position;
+        return list.get(position);
     }
 
     @Override

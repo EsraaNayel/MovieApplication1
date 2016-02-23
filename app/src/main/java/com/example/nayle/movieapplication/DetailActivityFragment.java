@@ -22,6 +22,7 @@ import com.example.nayle.movieapplication.DataMovie.Review;
 import com.example.nayle.movieapplication.DataMovie.Trailer;
 import com.example.nayle.movieapplication.adapter.DetailAdapter;
 import com.example.nayle.movieapplication.adapter.MainAdapter;
+import com.example.nayle.movieapplication.adapter.TrailerAdapter;
 import com.example.nayle.movieapplication.data.Result;
 import com.example.nayle.movieapplication.database.DBHelper;
 import com.squareup.picasso.Picasso;
@@ -48,12 +49,17 @@ public class DetailActivityFragment extends Fragment {
     private ArrayList<Trailer> trailerArrayList;
     private ArrayList<Review> ReviewArrayList;
     public List<Trailer> trailers;
+    public List<Review> reviews;
+//    DetailAdapter adapter = new DetailAdapter(getContext(),trailers,reviews);
+
+    TrailerAdapter traileradapter;
     ListView LV;
+    ListView LvTrailer;
     DBHelper dbHelper;
     int id;
     //boolean mTwoPane;
     String PosterPath;
-
+    //Result result = getResultData();
     Result result;
 
     public DetailActivityFragment() {
@@ -67,6 +73,7 @@ public class DetailActivityFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_detail, container, false);
 
         LV = (ListView) view.findViewById(R.id.listView2);
+        LvTrailer = (ListView) view.findViewById(R.id.listView1);
         if (MainFragment.mTwoPane) {
             Bundle bundle = getArguments();
             if (bundle != null) {
@@ -76,19 +83,36 @@ public class DetailActivityFragment extends Fragment {
             }
         } else {
             Intent intent = getActivity().getIntent();
-//            Bundle bundle = new Bundle();
-//            bundle.putSerializable("Movie",result);
-//            intent.putExtras(bundle);
 
             if (intent != null && intent.hasExtra("Movie")) {
-                result=(Result) intent.getExtras().getSerializable("Movie");
-               // result = (Result) intent.getSerializableExtra("Movie");
+                result = (Result) intent.getExtras().getSerializable("Movie");
             }
         }
-       id= Integer.parseInt(result.getId() + "");
-       // DetailAdapter adapter = new DetailAdapter(getActivity(), result);
-        new TrailersTask().execute("http://api.themoviedb.org/3/movie/" + result.getId() + "/videos?api_key=c6260798b95be3f1643000b02177cf03\"");
+
+        if (result == null) {
+            Bundle bundle = getArguments();
+            result = (Result) bundle.getSerializable("Movie");
+        }
+
+      new TrailersTask().execute("http://api.themoviedb.org/3/movie/" + result.getId() + "/videos?api_key=c6260798b95be3f1643000b02177cf03");
+
+        // Log.d("trailerrr1", trailers.size() + "");
+//         new ReviewsTask().execute("http://api.themoviedb.org/3/movie/" + result.getId() + "/reviews?api_key=c6260798b95be3f1643000b02177cf03");
+
+        Toast.makeText(getActivity(), "in fraaaagment ", Toast.LENGTH_LONG).show();
+
+//         DetailAdapter adapter = new DetailAdapter(getActivity(),trailers,reviews);
+
+//        DetaildActivity.this.trailers = trailers;
+
+        // DetailActivityFragment.this.trailers;
+//        DetailAdapter adapter = new DetailAdapter(getActivity(), trailerArrayList, reviews);
+//        LV.setAdapter(adapter);
+
         addHeader(result);
+//        new TrailersTask().execute("http://api.themoviedb.org/3/movie/" + result.getId() + "/videos?api_key=c6260798b95be3f1643000b02177cf03");
+
+
         return view;
     }
 
@@ -137,10 +161,10 @@ public class DetailActivityFragment extends Fragment {
         btnFavorite.setBackgroundResource(R.drawable.button_normal);
         boolean check = dbHelper.checkIFexist(id, PosterPath);
 
-        if(check==true) {
+        if (check == true) {
 
             btnFavorite.setImageResource(android.R.drawable.btn_star_big_on);
-            DBHelper dbHelper = new DBHelper(getActivity());
+            dbHelper = new DBHelper(getActivity());
             Toast.makeText(getActivity(), " Movie already saved in  your favorite list ", Toast.LENGTH_LONG).show();
         }
         final View.OnClickListener dbButtonListener = new View.OnClickListener() {
@@ -150,8 +174,8 @@ public class DetailActivityFragment extends Fragment {
                 boolean check = dbHelper.checkIFexist(id, PosterPath);//,null ,null, null, null,null);
                 if (check == false) {
 
-                    dbHelper.insert(id, PosterPath);//,null ,null, null, null,null );
-                   view.setBackgroundResource(R.drawable.button_pressed);
+                    dbHelper.insert(id, PosterPath, null, null, null, null, null);//,null ,null, null, null,null );
+                    view.setBackgroundResource(R.drawable.button_pressed);
                     Toast.makeText(getActivity(), "Movie added to favorite list", Toast.LENGTH_LONG).show();
 
                 } else {
@@ -159,18 +183,20 @@ public class DetailActivityFragment extends Fragment {
                     dbHelper.delete(id, PosterPath);
                     view.setBackgroundResource(R.drawable.button_normal);
                     Toast.makeText(getActivity(), "Movie deleted from favorite list ", Toast.LENGTH_LONG).show();
-
                 }
-
             }
-
         };
         btnFavorite.setOnClickListener(dbButtonListener);
-
-
     }
 
-//    public Result getResultData() {
+//                 new TrailersTask().execute("http://api.themoviedb.org/3/movie/" + result.getId() + "/videos?api_key=c6260798b95be3f1643000b02177cf03");
+
+//    private Result getResultData() {
+//        Result result = (Result) getActivity().getIntent().getExtras().get("movie");
+//        return result;
+//    }
+
+    //    public Result getResultData() {
 //      //  Intent intent = getActivity().getIntent();
 //       Result result = null;
 //        if (mTwoPane) {
@@ -186,8 +212,6 @@ public class DetailActivityFragment extends Fragment {
 //        return result;
 //
 //    }
-
-
     class TrailersTask extends AsyncTask<String, String, List<Trailer>> {
         @Override
         protected List<Trailer> doInBackground(String... params) {
@@ -195,7 +219,7 @@ public class DetailActivityFragment extends Fragment {
             HttpURLConnection connection;
             BufferedReader reader;
             try {
-                URL url = new URL("http://api.themoviedb.org/3/movie/" + result.getId() + "/videos?api_key=c6260798b95be3f1643000b02177cf03");
+                URL url = new URL(params[0]);
                 connection = (HttpURLConnection) url.openConnection();
                 connection.connect();
 
@@ -220,8 +244,6 @@ public class DetailActivityFragment extends Fragment {
                     trailer.setUrl(FinalObject.getString("key"));
 
                     trailerArrayList.add(trailer);
-
-
                 }
                 return trailerArrayList;
 
@@ -238,14 +260,26 @@ public class DetailActivityFragment extends Fragment {
         @Override
         public void onPostExecute(List<Trailer> trailers) {
             super.onPostExecute(trailers);
-            Log.d("trailer", trailers.size() + "");
 
-            //  Result result = getResultData();
 
-           // new TrailersTask().execute("http://api.themoviedb.org/3/movie/" + result.getId() + "/videos?api_key=c6260798b95be3f1643000b02177cf03\"");
+//             new TrailersTask().execute("http://api.themoviedb.org/3/movie/" + result.getId() + "/videos?api_key=c6260798b95be3f1643000b02177cf03");
+            Log.d("trailer", trailers + "");
 
-           new ReviewsTask().execute("http://api.themoviedb.org/3/movie/" + result.getId() + "/reviews?api_key=c6260798b95be3f1643000b02177cf03");
 
+
+
+
+            Toast.makeText(getActivity(), "traiiiiiiiiilerrrrrrrrrrrs ", Toast.LENGTH_LONG).show();
+
+           // DetailAdapter detailAdapter = new DetailAdapter(getActivity(), trailers, reviews);
+
+            traileradapter= new TrailerAdapter(getContext(), trailers);
+            LvTrailer.setAdapter(traileradapter);
+
+
+            Toast.makeText(getActivity(), "reveiwwwwwwwwwwwww ", Toast.LENGTH_LONG).show();
+
+            new ReviewsTask().execute("http://api.themoviedb.org/3/movie/" + result.getId() + "/reviews?api_key=c6260798b95be3f1643000b02177cf03");
         }
     }
 
@@ -298,9 +332,13 @@ public class DetailActivityFragment extends Fragment {
         @Override
         public void onPostExecute(List<Review> reviews) {
             super.onPostExecute(reviews);
+//            new TrailersTask().execute("http://api.themoviedb.org/3/movie/" + result.getId() + "/videos?api_key=c6260798b95be3f1643000b02177cf03");
 
-            DetailAdapter adapter = new DetailAdapter(getActivity(), trailers ,reviews );
+            DetailAdapter adapter = new DetailAdapter(getContext(), trailers, reviews);
+            //LV.setAdapter(trailadapter);
             LV.setAdapter(adapter);
+
+//            if(result == null) return;
         }
     }
 

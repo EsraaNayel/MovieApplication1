@@ -39,11 +39,11 @@ public class DBHelper extends SQLiteOpenHelper {
 
         String quary_table = "CREATE TABLE " + TABLE_NAME + "(" +
                 ID + " INTEGER PRIMARY KEY AUTOINCREMENT , " +
-                //    TITLE + " TEXT NOT NULL ," +
+//                    TITLE + " TEXT NOT NULL ," +
                 Poster_path + " TEXT  " +
 //                Overveiw + "TEXT NOT NULL ," +
 //                Release_date + "TEXT NOT NULL ," +
-//                Trailer + "TEXT NOT NULL ," +
+//               Trailer + "TEXT NOT NULL ," +
 //                Review + "TEXT NOT NULL ," +
                 ")";
         sqLiteDatabase.execSQL(quary_table);
@@ -66,11 +66,11 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public long insert(int id, String PosterPath) {
+    public long insert(int id, String PosterPath, String Title, String ReleaseDate, String overview, String trailer, String review  ) {
         ContentValues values = new ContentValues();
         if (id != -1)
             values.put(ID, id);
-        // values.put(TITLE,Title);
+//         values.put(TITLE,Title);
         values.put(Poster_path, PosterPath);
 //        values.put(Release_date,ReleaseDate);
 //        values.put(Overveiw,overview);
@@ -128,12 +128,19 @@ public class DBHelper extends SQLiteOpenHelper {
             do {
                 int id = cursor.getInt(0);
                 String posterPath = cursor.getString(1);
+//                String title=cursor.getString(2);
+//                String releaseDate=cursor.getString(3);
+//                String description=cursor.getString(4);
+//                String rating=cursor.getString(5);
+//
 
                 // Adding contact to list
                 //MovieMain movie = new MovieMain(ID, null, posterPath);
                 Result r = new Result();
                 r.setId(id);
                 r.setPosterPath(posterPath);
+//                r.setTitle(title);
+
 
                 result.add(r);
             } while (cursor.moveToNext());

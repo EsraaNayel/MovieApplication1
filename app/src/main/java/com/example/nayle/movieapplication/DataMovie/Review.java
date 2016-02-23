@@ -17,6 +17,7 @@ public class Review implements Serializable {
     }
 
     private String content;
+
     public Review(){}
 
     public String getAuthor() {

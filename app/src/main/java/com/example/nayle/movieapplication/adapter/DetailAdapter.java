@@ -1,5 +1,6 @@
 package com.example.nayle.movieapplication.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -25,21 +26,22 @@ import java.util.List;
  * Created by Nayle on 12/10/2015.
  */
 public class DetailAdapter extends BaseAdapter {
-
+   Activity activity;
     Result result;
+    Context context;
+    public LayoutInflater inflater;
+    public List<Trailer> trailerList;
+    List<Review> reviews;
+    Trailer t;
 
     public DetailAdapter(Context context, List<Trailer> trailer, List<Review> reviews) {
         this.context = context;
-        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//       inflater = activity.getLayoutInflater();
+       // this.activity = activity;
+         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         trailerList = trailer;
         this.reviews = reviews;
     }
-
-    Context context;
-    private LayoutInflater inflater;
-    public List<Trailer> trailerList;
-    List<Review> reviews;
-
 
     @Override
     public int getCount() {
@@ -79,7 +81,7 @@ public class DetailAdapter extends BaseAdapter {
         if (type.equals("trailers")) {
 
             view = inflater.inflate(R.layout.row_trailer, null);
-            final Trailer t = trailerList.get(position);
+              t = trailerList.get(position);
 
             TextView trailerName = (TextView) view.findViewById(R.id.trailerName);
             trailerName.setText(t.getName());
@@ -96,9 +98,11 @@ public class DetailAdapter extends BaseAdapter {
                 }
             });
 
-        } else if (type.equals("review")) {
+        }
+    else if (type.equals("review")) {
             view = inflater.inflate(R.layout.row_review, null);
             Review r = reviews.get(position);
+
             TextView name = (TextView) view.findViewById(R.id.authorName);
             TextView content = (TextView) view.findViewById(R.id.reviewContent);
 
@@ -110,7 +114,7 @@ public class DetailAdapter extends BaseAdapter {
         }
         return view;
     }
-
+//
         String getType(int position) {
         int TrailerCount = 0;
         if (trailerList != null) {
@@ -122,7 +126,7 @@ public class DetailAdapter extends BaseAdapter {
         }
 
         if (position < TrailerCount)
-            return "trailers";
+            return "trailer";
         else if (position < ReviewCount) {
             return "review";
         }
