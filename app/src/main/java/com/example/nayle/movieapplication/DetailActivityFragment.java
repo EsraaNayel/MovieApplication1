@@ -1,6 +1,7 @@
 package com.example.nayle.movieapplication;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.LayerDrawable;
@@ -114,6 +115,12 @@ public class DetailActivityFragment extends Fragment {
 
 
         return view;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Log.d("rotate","orintation changed");
     }
 
 

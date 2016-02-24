@@ -3,6 +3,7 @@ package com.example.nayle.movieapplication;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -95,12 +96,20 @@ public class MainFragment extends Fragment {
     }
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Log.d("rotate","orintation changed");
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if( savedInstanceState != null ) {
             Toast.makeText(getActivity(), savedInstanceState .getString("message"), Toast.LENGTH_LONG).show();
         }
         setHasOptionsMenu(true);
+
+
 
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
